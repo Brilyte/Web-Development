@@ -1,0 +1,48 @@
+// partial sass file, hence the _name
+*,
+*::after,
+*::before {
+    margin: 0;
+    padding: 0;
+    /* box-sizing will now be an inherited property, inherited from body */
+    box-sizing: inherit;
+}
+
+// overall setting for how we define ENTIRE page
+html {
+    // DEFINES 1rem = 10px; 10px/16px = 62.5%
+    font-size: 62.5%; 
+    //setting ems and rems later not affected by this, only pixels
+    //ems and rems are set by the browser
+
+    // Not necessary since <900px from tab-port is enough
+    // @include respond(phone) {
+    //     font-size: 50%; 
+    // }
+
+    @include respond(tab-land) { // width < 1200px?
+        font-size: 56.25%; // want 1rem = 9px, 9/16 = 56.25%
+    }
+
+    @include respond(tab-port) { // with < 900px?
+        font-size: 50%; // want 1rem = 8px, 8/16 = 50%
+    }
+
+    @include respond(big-desktop) {
+        font-size: 75%; // want 1rem = 12px, 12/16 = 75%
+    }
+}
+
+body {
+    box-sizing: border-box;
+    padding: 3rem;
+
+    @include respond(tab-port) { 
+        padding: 0;
+    }
+}
+
+::selection {
+    background-color: $color-primary;
+    color: $color-white;
+}

@@ -1,0 +1,233 @@
+/*
+COLORS:
+
+Light green: #7ed56f
+Medium green: #55c57a
+Dark green: #28b485
+
+*/
+
+/* 
+Perform basic reset using universal, to make each browser work in the same way 
+(Not really necessary anymore)
+*/
+
+*,
+*::after,  /* so that all after and before get inheritance, normally don't (box-sizing) */
+*::before {
+    margin: 0;
+    padding: 0;
+    /* box-sizing will now be an inherited property, inherited from body */
+    box-sizing: inherit;
+}
+
+html {
+    /* 1rem = 10px, so divide all px by 10 to get rem */
+    /* font-size: 10px; <- bad practice */
+    /* if no browser change: default 16px, and we want 10px (10/16 = 0/625)*/
+    font-size: 62.5%;
+}
+
+body {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    /* font-size: 16px; */
+    line-height: 1.7;
+    color: #777;
+    padding: 3rem; /* padding around entire webpage */
+    box-sizing: border-box; /* borders and paddings no longer added to h or w of box */
+}
+
+.header {
+    height: 95vh; /* 95% of viewport height */
+    background-image: linear-gradient(
+        to right bottom,
+        rgba(126, 213, 111, 0.8),
+        rgba(40, 180, 133, 0.8)),
+        url(../img/hero.jpg); /* gradient then image */
+    background-size: cover; /* will always try to fit full element inside box */
+    background-position: top; /* top of image always stays at top of container */
+    /* polygon where image will still be visible, wedge , clockwise from top left (x y)*/
+    clip-path: polygon(
+        0 0, 
+        100% 0, 
+        100% 75vh, 
+        0 100%
+    );
+    position: relative;
+}
+
+.header__logo-box{
+    /* absolute positioning */
+    position: absolute;
+    /* measurements determined by parent element (header) */
+    top: 4rem;
+    left: 4rem;
+}
+
+.header__logo {
+    /* width figured out by browser */
+    height: 3.5rem;
+}
+
+.header__text-box {
+    position: absolute;
+    /* top and left position according to parent (0,0 of element) */
+    top: 40%;
+    left: 50%;
+    /* transform no longer in relation to parent, but to element itself */
+    /*  50% of ele height to top, 50% of ele width to left. Can center element */
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.heading-primary{
+    color: #fff;
+    text-transform: uppercase;
+
+    /* Hides shake of div element on animation (though seems fixed...)*/
+    backface-visibility: hidden;
+    margin-bottom: 6rem;
+}
+
+.heading-primary--main{
+    display: block;
+    font-size: 6rem;
+    font-weight: 400;
+    letter-spacing: 3.5rem;
+
+    /*  Required properties for animation to work */
+    animation-name: moveInLeft;
+    animation-duration: 1s;
+
+    animation-timing-function: ease-out;
+}
+
+.heading-primary--sub{
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 1.75rem;
+
+    animation: moveInRight 1s ease-out;
+}
+
+/*  Specify what happens at each moment (%) 
+    For browser performance best to only animate only two properties (opacity, transform in this case)
+*/
+@keyframes moveInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-10rem);
+    }
+
+    80% {
+        transform: translateX(1rem);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes moveInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(10rem);
+    }
+
+    80% {
+        transform: translateX(-1rem);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes moveInBottom {
+    0% {
+        opacity: 0;
+        transform: translateY(3rem);
+    }
+
+    /* 80% {
+        transform: translateY(-20px);
+    } */
+
+    100% {
+        opacity: 1;
+        transform: translate(0);
+    }
+}
+
+
+/* link-pseudoclass,  pseudoclasses are states of a selector. Link is state of button selector 
+Use pseudoclasses to style elements under certain conditions 
+ex: link is blue, clicked(visited) purple by default*/
+.btn:link,
+.btn:visited {
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 1.5rem 4rem;
+    display: inline-block; /* now treated as text-box */
+    border-radius: 10rem;
+    /*  which properties we want to animate, now animations hover and  transform will be animated
+    in relation to initial state */
+    transition: all .2s;
+    position: relative;
+    font-size: 1.6rem;
+}
+
+.btn:hover {
+    transform: translateY(-.3rem);
+    /* black with 20% opacity */
+    /* box-shadow: [horizontal offset] [vertical offset] [blur radius] [optional spread radius] [color]; */
+    box-shadow: 0 1rem 2rem 0 rgba(0,0,0,.2);
+}
+
+/* on click */
+.btn:active {
+    /* always in relation to the initial link state, not to hover state */
+    transform: translateY(-.1rem);
+    box-shadow: 0 .5rem 1rem 0 rgba(0,0,0,.2);
+}
+
+.btn--white {
+    background-color: #fff;
+    color: #777;
+}
+
+/* pseudo elements, virtual element after element we are selecting */
+/* want it to be exactly the same as button, so it can appear and disappear under button */
+/* In CSS, ::after creates a pseudo-element that is the last child of the selected element. */
+.btn::after{
+    content: "";
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    border-radius: 10rem;
+    /* absolute needs reference (header), want it to be the button, so set button to relative */
+    position: absolute; 
+    top: 0;
+    left: 0;
+    z-index: -1;
+    transition: all .4s;
+}
+
+.btn--white::after{
+    background-color: rgb(255, 255, 255);
+}
+
+.btn:hover::after{
+    transform: scaleX(1.4) scaleY(1.6);
+    opacity: 0;
+}
+
+.btn--animated {
+    animation: moveInBottom 0.5s ease-out .75s;
+    /* Automatically applies animation of 0% before start */
+    animation-fill-mode: backwards;
+}

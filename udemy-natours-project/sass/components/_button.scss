@@ -1,0 +1,111 @@
+/* link-pseudoclass,  pseudoclasses are states of a selector. Link is state of button selector 
+Use pseudoclasses to style elements under certain conditions 
+ex: link is blue, clicked(visited) purple by default*/
+.btn{
+    &,
+    // Real <button> doesn't have :link or :visited pseudoclasses unless apply to all using & above
+    &:link,
+    &:visited {
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 1.5rem 4rem;
+        display: inline-block; /* now treated as text-box */
+        border-radius: 10rem;
+        /*  which properties we want to animate, now animations hover and  transform will be animated
+        in relation to initial state */
+        transition: all .2s;
+        position: relative;
+        font-size: $default-font-size;
+
+        //Change for the <button> element
+        border: none;
+        cursor: pointer;
+    }
+
+    &:hover {
+        transform: translateY(-.3rem);
+        /* black with 20% opacity */
+        /* box-shadow: [horizontal offset] [vertical offset] [blur radius] [optional spread radius] [color]; */
+        box-shadow: 0 1rem 2rem 0 rgba($color-black,.2);
+
+        &::after{
+            transform: scaleX(1.4) scaleY(1.6);
+            opacity: 0;
+        }
+    }
+
+    /* on click */
+    &:active,
+    &:focus {
+        outline: none; //for accessibility for <button> don't REMOVE focus, just remove the outline
+        /* always in relation to the initial link state, not to hover state */
+        transform: translateY(-.1rem);
+        box-shadow: 0 .5rem 1rem 0 rgba($color-black,.2);
+    }
+
+    &--white {
+        background-color: $color-white;
+        color: $color-grey-dark;
+
+        &::after{
+            background-color: $color-white;
+        }
+    }
+
+    &--green {
+        background-color: $color-primary;
+        color: $color-white;
+
+        &::after{
+            background-color: $color-primary;
+        }
+
+    }
+    /* pseudo elements, virtual element after element we are selecting */
+    /* want it to be exactly the same as button, so it can appear and disappear under button */
+    /* In CSS, ::after creates a pseudo-element that is the last child of the selected element. */
+    &::after{
+        content: "";
+        display: inline-block;
+        height: 100%;
+        width: 100%;
+        border-radius: 10rem;
+        /* absolute needs reference (header), want it to be the button, so set button to relative */
+        position: absolute; 
+        top: 0;
+        left: 0;
+        z-index: -1;
+        transition: all .4s;
+    }
+
+    &--animated {
+        animation: moveInBottom 0.5s ease-out .75s;
+        /* Automatically applies animation of 0% before start */
+        animation-fill-mode: backwards;
+    }
+}
+
+.btn-text {
+    &:link,
+    &:visited {
+        font-size: $default-font-size;
+        color: $color-primary;
+        display: inline-block;
+        text-decoration: none;
+        border-bottom: 1px solid $color-primary;
+        padding: 0.3rem;
+        transition: all .2s;
+    }
+
+    &:hover {
+        background-color: $color-primary;
+        color: $color-white;
+        box-shadow: 0 1rem 2rem rgba($color-black,.15);
+        transform: translate(-2px);
+    }
+
+    &:active {
+        box-shadow: 0 .5rem 1rem rgba($color-black,.15);
+        transform: translateY(0);
+    }
+}

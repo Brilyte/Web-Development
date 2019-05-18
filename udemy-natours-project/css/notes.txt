@@ -1,0 +1,530 @@
+CSS Notes
+-------------------------------------------------------------------------------------------------
+Section 3 # 12 3 pillars
+    3 pillars of writing good html and CSS:
+
+    1) Responsive design
+        - one website across all screen sizes and devices
+        -Fluid Layouts
+        -Media Queries
+        -Responsive Images
+        -Correct Units
+        -Desktop first vs Mobile first strategy
+
+    2) Maintainable and scalable code
+        - future growth, reusable
+        - clean, easy to understand
+        - organize files, name classes
+        - structure HTML
+
+    3) Web performance
+        - faster, smaller
+        - less http requests (least files in html)
+        - less code, compress code
+        - less images, compress images (** less images is the biggest factor)
+            - only use images that are necessary, more compressed = less bandwidth
+        - CSS preprocessor (Sass)
+
+    - Slides available on github
+
+-------------------------------------------------------------------------------------------------
+Section 3 # 13
+    How CSS Works Behind the Scenes: An Overview
+
+    What happens when we load a webpage?
+    -from browser perspective
+    -load html -> parse html -> Document Object Model (DOM) (tree of elements storing decoded html)
+                    \
+                    \_> load css -> 1. resolve conflicting css declarations (cascades)
+                                -> 2. process final css values (based on users screen size) -> CSSOM (css object model)
+
+        CSSOM + DOM = Render Tree -> Website rendering: the visual formatting model (box, floats, positioning) -> Final rendered website
+
+-------------------------------------------------------------------------------------------------
+Section 3 # 14 CSS Parsing
+    CSS Terminology
+    .my-class {  <- selector
+        font-size: 20px;
+        } <- declaration block
+
+    font-size is a property
+    20px is a declared value
+
+    CSS Parsing 
+    1. resolve conflicting css declarations (cascades) - get it? CASCADING style sheets
+        -combining stylesheets and resolving conflict between different css rules and declarations,
+        when more than one rule applies to a certain elements
+
+        Combines all of these sources:
+        Author CSS - CSS we write
+        User CSS - CSS user changes, like font size in browser
+        Browser (user agent CSS) - CSS set by browser
+
+        Importance(weight) > Specificity > Source Order
+        
+        Importance (weight)
+            1. User !important declarations
+            2. Author !important declarations
+            3. Author declarations <- having many of these is most common, then goes to specificity 
+            4. User declarations
+            5. Default browser declarations
+
+        Same importance? Next step:
+        Specificity
+            1. Inline styles
+            2. IDs
+            3. Classes, pseudoclasses, attribute
+            4. Elements, pseudo-elements
+
+            Four Numbers: (0, 0, 1, 0) = (Inline, IDs, Classes, Elements) -> count # of occurences
+
+            Inline styles have to be written in html..
+                <h1 style="color:blue;margin-left:30px;">This is a heading</h1> 
+
+            Elements: element selectors
+                nav div {}
+
+            Read numbers left to right, if competing has highest # in inline it wins,
+            continues using this to pare down
+
+            Winning values is called the CASCADED VALUE
+
+        Same specificity? Next step:
+        Source Order
+            The last declaration in the code will override all other declarations and be applied
+
+    -only use !importance as a last resource! Its better to use correct specificities =
+    more maintainable code
+    - a selector with 1 ID is more specific than one with 1000 classes
+    - a selector with 1 class is more specific than one with 1000 elements
+    - The universal selector * has no specificity value! (0,0,0,0)
+    - Rely more on SPECIFICIY than the ORDER of selectors
+    - but rely on order when using 3rd party stylesheets, ALWAYS put your author stylesheet last included in
+    HTML (so it will overwrite)
+
+-------------------------------------------------------------------------------------------------
+Section 3 # 15
+    HTML
+    <nav id="nav">
+        <div class="pull-right">
+            <a class="button button-danger"
+            href="link.html">Don't click here!</a>
+        </div>
+    </nav>
+
+    CSS
+    #nav div.pull-right a.button {
+        background-color: orangered;
+    } (0, 1, 2, 2)
+
+    #nav a.button:hover {
+        background-color: yellow
+    } 
+    (0, 1, 2, 1) hover is a class
+    so hover will not work, less specific than above
+
+    how to fix?
+    #nav div.pull-right a.button:hover {
+        background-color: orangered;
+    } (0, 1, 3, 2) so now more specific than first (more classes)
+
+-------------------------------------------------------------------------------------------------
+Section 3 # 16 How CSS Values are Processed (Units)
+    How CSS Values are Processed (Units)
+    - Unit will always be converted to pixels
+    
+        <div class="section">
+            <p class="amazing">CSS is absolutely amazing</p>
+        </div>
+
+        .section {
+            font-size: 1.5rem;
+            width: 280px;
+            background-color: orangered;
+        }
+
+        p {
+            width: 140px;
+            background-color: green;
+        }
+
+        .amazing {
+            width: 66%
+        }
+
+        1. Declared value (author declarations):
+            Width(paragraph): 140px, 66% (must choose through cascade)
+            Padding (paragraph): even though not declared _must_ have value!: -
+            Font-size (root): -
+            Font-size (section): 1.5 rem (rem is relative unit, must be converted to pixels in computed)
+            Font-size (paragraph): -
+
+        2. Cascaded Value (after the cascade):
+            Width (paragraph): 66%      
+            Padding (paragraph): -
+            Font-size (root): 16px (Browser default) DONE
+            Font-size (section): 1.5 rem
+            Font-size (paragraph): -
+
+        3. Specified value (defaulting, if there is no cascaded value)
+            Width (paragraph): 66%
+            Padding (paragraph): 0px DONE Every CSS has its own initial value if not declared, or inheritance..
+            Font-size (root): 16px
+            Font-size (section): 1.5 rem
+            Font-size (paragraph): 24px (inheritance! from font-size(section))
+                
+        4. Computed Value (converting values to absolute):
+            Width (paragraph): 66%
+            Padding (paragraph): 0px
+            Font-size (root): 16px
+            Font-size (section): 24px (1.5 * 16px, always relative to root font-size (font-size(root)))
+            Font-size (paragraph): 24px
+
+        5. Used value (final calculations, based on layout): -in relation to parent, in rendering phase of page
+            Width (paragraph): 184.8px (66% of 280px from section width)
+            Padding (paragraph): 0px
+            Font-size (root): 16px
+            Font-size (section): 24px
+            Font-size (paragraph): 24px
+
+        6. Actual value (browser and device restrictions):
+            Width (paragraph): 185 px
+            Padding (paragraph): 0px
+            Font-size (root): 16px
+            Font-size (section): 24px
+            Font-size (paragraph): 24px
+
+
+    --How units are converted from Relative to Absolute(px)--
+        html, body {
+            font-size: 16px;
+            width: 80vw;
+        }
+
+        header {
+            font-size: 150%;
+            padding: 2em;
+            margin-bottom: 10rem;
+            height: 90vh;
+            width: 1000px;
+        }
+
+        .header-child {
+            font-size: 3em;
+            padding: 10%;
+        }
+
+
+        % (fonts)  150% --> x% * <parent's computed font-size> 16px --> 24px
+        % (lengths) 10% --> x% * <parent's computed width> 1000px --> 1000px
+
+        All Font-Based relative units (em use parent or current element as ref, rem use root font-size as ref)
+        em(font): 3em --> x * <PARENT computed font-size>(150% * 16px = 24px) --> 72px (3 * 24)
+        em(lengths): 2em -->  x * <CURRENT element computed font-size>(150% * 16px = 24px) --> 48px (2 * 24)
+        rem: 10rem --> x * <ROOT computed font-size>(16px) --> 160px
+
+        em (font) reference is PARENT 
+        em (lengths) reference is CURRENT Elements
+        rem same for both font and length because uses root font-size as reference
+
+        ems and rems based on font-size, more responsive since we can change font-size to 
+        adapt sizes
+
+        Viewport-Based:
+        vh: 90vh --> x * <1% of viewport HEIGHT> --> 90% of the current viewport height
+        vw 80vw --> x * <1% of viewport WIDTH> --> 80% of current viewport width
+
+    
+    -- CSS Value Processing: What you need to know --
+        - Each property has an initial value, used if nothing is declared (and if there is no inheritance)
+        - Browser's specify a root font-size for each page (usually 16px), from USER AGENT definition
+        - Percentages and relative values are always converted to pixels
+        - Percentages are measured relative to their parent's font-size, is used to specify font-size
+        - Percentages are measured relative to their parent's width, is used to specify lengths
+        - em are measure relative to PARENT font-size, if used to specify font-size
+        - em are measure relative to CURRENT font-size, if used to specify lengths
+        - rem are measured relative to the DOCUMENTS ROOT font-size
+        -vh and vw are simply percentage measurements of the viewports height and width
+
+-------------------------------------------------------------------------------------------------
+Section 3 # 17 Inheritance
+    Inheritance
+    
+    Every CSS property must have  a value
+    Is there a cascaded value?
+    YES -> Specified value = cascaded value
+    NO -> Is the property inherited? (specific to each property)
+        can look up property specification to see if it is inherited
+        ex: line-height IS inherited
+        YES -> Specified value = COMPUTED values of parent element
+        NO -> Specified value = Initial values (specific to each value)
+            ex: Padding intial value is 0px
+
+    - Inheritance passes the values for some specific properties from parents to children - more maintainable code
+    - Properties related to text are inherited
+    - The computed value of a property is what gets inherited, NOT the declared value
+    - Inheritance of a property only works if no one declares a value for that property
+    - The inherit keyword FORCES inheritance on a certain property
+    - The initial keyword resets a property to its initial value
+
+-------------------------------------------------------------------------------------------------
+    Consistently use rem to be able to change all measurements at once
+    Use inheritance
+-------------------------------------------------------------------------------------------------
+Section 3 # 19 The visual formatting model
+    Algorithm that calculates boxes and determines the layout of these boxes, for each element
+    in the render tree, in order to determine the final layout of the page
+    - Dimensions of boxes: the box model
+    - Box type: inline, block and inline-block
+    - Positioning scheme: floats and positioning (abosulte, relative)
+    - Other elements in the render tree
+    - Viewport size, dimensions of images etc.
+
+    1. The Box Model
+        Content, Padding (around content inside box), Border, margin (space between boxes),
+        Fill Area (are that gets filled with color and image (not margin))
+
+        Box-sizing: border-box -> (content + padding + border)
+            - can ignore padding as it is included, less calculations
+
+    2. Box Types: Inline, Block-Level and Inline-Block
+
+        Block-level boxes
+        - elements formatted visually as blocks
+        - 100% of parent's width
+        - Vertically, one after another
+        - Box model applied as shown
+        - ex: <p>
+
+        Inline boxes
+        - Content is distributed in lines
+        - Occupies only content's space
+        - No line breaks
+        - No heights and widths
+        - Padding and margins only horizontal (left and right)
+
+        Inline-block boxes (mix of both)
+        - Occupies only contents space
+        - No line breaks
+        - Box model applies as showed
+
+    3. Positioning schemes: normal flow, absolute positioning and floats
+        Normal flow
+        - Default positioning scheme
+        - NOT floated
+        - NOT absolutely positioned
+        - Elements laid out according to their SOURCE order
+        position: relative
+
+        Floats
+        - Element is removed from the normal flow
+        - Text and inline elements will wrap around the floated element
+        - The container will not adjust its height to the element
+        float: left
+        float: right
+
+        Absolute Positioning
+        - Element is removed from normal flow
+        - No impact on surrounding content or elements
+        - We use top, bottom, left and right to offset the element from its relatively
+          positioned container
+          position: absolute
+          position: fixed
+
+    4. Stacking contexts
+        Layers on bottom are painted first, to top
+        Highest z-index on top, lowest on bottom (z-axis)
+        Other properties can also create different stacking contexts!
+-------------------------------------------------------------------------------------------------
+Section 3 # 20 Architecture, Components and BEM
+
+    Think -> Build -> Architect mindset
+    Think about layout before writing
+    Build layout with consistent naming
+    Create logical architecture for CSS with files and folders
+
+    Think
+        Component driven design
+        - Modular building blocks that make up interfaces
+        - Interface = collection of components held together by layout of page
+        - Re-usable across a project and btwn projects
+        - Independent, allowing us to use them anywhere on page
+            - NOT dependent on parent elements
+
+    Build
+        Consistent strategy and structure for naming
+        Block Element Modifier (BEM)
+        BLOCK: standalone component that is meaningful on its own
+            - can be reused anywhere in the project ex: btn, or recipe. Can be nested
+            - in slide ex: btn is nested inside recipe
+        ELEMENT: part of the block that has no standalone meaningful
+            - ex: recipe__info  (info without recipe has no meaning)
+        MODIFIER: a different version of a block or an element
+            -ex: btn--round, to make btn round
+
+        Ex of low specificity BEM selectors
+        .block {}
+        .block__element {}
+        .block__element--modifier {}
+
+    Architect
+        Logical folder and file structure
+        7-1 Pattern
+        - 7 Different folders for partial Sass files and 1 main Sass file to 
+          import all other files into a compiled CSS sheet
+          (Sass could be any CSS preprocessor)
+
+        The 7 folders:
+            base/
+            components/
+            layout/
+            pages/
+            themes/
+            abstracts/
+            vendors/
+            * Don't always need all of these, depends on scope of project
+-------------------------------------------------------------------------------------------------
+Section 5 #33 Basic principles of responsive design and layout types
+    1) Fluid grids and layouts
+        Use % rather than px for all layout-related lengths
+
+    2) Flexible/responsive images
+        Behave diff. than text need to ensure they adap nicely
+        Dimensions in % rather than %
+        Images take up most data, need to be optimized (also for diff width)
+
+    3) Media Queries
+        Breakpoints- to change styles on certain viewport widths (breakpoints)
+        allowing us to create diff. versions of our website for diff. widths
+
+    Float Layouts
+        Many boxes side by side using floats
+        Alternatives are not 100% supported by all browsers
+
+    Flexbox
+    CSS Grid
+-------------------------------------------------------------------------------------------------
+Section 5 # 34
+    Simple grid
+    Attribute selector
+    :not pseudo-class
+    calc() vs simple Sass operations
+-------------------------------------------------------------------------------------------------
+Section 5 # 35
+    How to use Emmet HTML plugin
+    .<class name> = <div class= 'class name'>
+    section.<class name> = <section class = 'class name'>
+-------------------------------------------------------------------------------------------------
+Section 5 # 45
+    components - think about what is reusable, like a form
+    booking section form should be reusable but the part with half an image should not be
+-------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------
+
+Responsive Design 
+Section 6
+
+-------------------------------------------------------------------------------------------------
+Section 6 Lecture 55 Mobile first vs Desktop first
+
+    Desktop first
+    Natours project is desktop -> Mobile (Traditional)
+    Large screen, then media queries shrink design to smaller screens
+
+    Mobile first
+    Small screen, then media queries (min) expand Design
+    Forces us to reduce websites to absolute essentials
+
+    Media Queries
+    Max width for Desktop first
+        starts > 1200px
+        max width at which media query still applies
+        max-width 600px (is width <=600px?)
+        max-width 900px (is width <=900px?)
+        max-width 1200px (is width <= 1200px?)
+        Above 1200px is our first desktop format
+            ex: 500px, both are applied BUT not really b/c first takes precedence (600px media query)
+            So queries must be applied in specific order, cascading
+
+    Min width for Mobile first
+        starts < 600px
+        min-width 600px, (is width >= 600px)
+        min-width 900px, (is width >= 900px)
+        min-width 1200px, (is width >= 1200px)
+
+    Pros and Consistent
+        Always keep BOTH in mind
+
+        Mobile first Pros
+        - 100% optimized for mobile
+        -absolute essentials
+        -smaller, faster, more efficient products
+        -prioritizes content over aesthetic Design
+        - more tablet/phone use these days
+        
+        Mobile First Cons
+        - Desktop might feel empty and simplistic
+        - less creative freedom
+        - clients are used to seeing desktop as prototype
+        - DO YOUR USERS USE MOBILE? What is the PURPOSE of your website?
+
+    Breakpoints
+        Viewport width at which we want our view to change
+        (where we put our media queries)
+
+        Bad - using width of popular devices to set breakpoints
+            * optimizing for only one device
+            * don't use specific widths of screen as breakpoints, use limit of group
+            * not future proof 
+        
+        Good - look at most used devices, group them logically and pick breakpoints from that
+            * using more devices than bad, set breakpoints between type of device
+            * statcounter has most used devices/screen sizes
+            * {phone only, table portrait, tablet landscape, desktop, big desktop}
+        
+        Perfect - ignore devices, just shrink until site breaks then fix
+            * can be difficult 
+
+        For this course going to use GOOD way
+-------------------------------------------------------------------------------------------------
+Section 6 Lecture 61
+    Logo in footer
+    Art direction
+        Different images for different viewport width
+        Picture element: specify multiple sources for one image
+        In source element write css query to force browser to use image specified in source under
+        css conditions
+    Inside in source (img, source) use srcset to do Density Switching
+-------------------------------------------------------------------------------------------------
+Section 6 Lecture 62
+    To check img source in devtools
+        Go to properties, while img is selected in Elements go to img dropdown, currentSrc
+
+    How to allow browser to decide best image to download using srcset. width descriptors and sizes attribute
+    of img element
+    Resolution Switching
+        3 images in section-about
+        Use width descriptor in img tag to tell browser size of images without it having to 
+        download them
+        Tell it what to choose using the sizes attribute in the img tag
+        Sizes: pixels of image at that breakpoint / breakpoint size
+            ex: 171/600 = 0.285 so 30vw
+        src will tell browser what to use as default if it can't parse rest of tag
+
+        Art Direction: force browser to use certain image using media attribute
+        Resolution Switching: give browser options of which to load based on media queries and size of images available
+-------------------------------------------------------------------------------------------------
+Section 6 Lecture 64
+-------------------------------------------------------------------------------------------------
+Section 6 Lecture 65 
+    Build Process - Concatenation (add icon.css into style.css, so one file)
+
+
+In this course:
+Natours-project
+-Responsive design for all screen sizes and devices, including implementing responsive images in HTML and CSS
+-Graceful degradation for browser compatibility and testing browser support
+-Build process using npm, automated building and compressing files, automated sass compiling using live-server
+
+
+-Grid, flexbox
